@@ -8,7 +8,7 @@ From the repository root, run `python3 -m http.server 4173 --directory web` and 
 
 ## GitHub Pages
 
-The deployable static site is in `web/`. All asset URLs are relative, so repository Pages paths work. No build, server, API keys, or runtime dependencies are required. Google Fonts is optional; system fonts work if unavailable.
+The deployable static site is in `web/`. All asset URLs are relative, so repository Pages paths work. No build, server, API keys, or package installation are required. The luxury simulator vendors Three.js locally. Google Fonts is optional; system fonts work if unavailable.
 
 In repository Settings → Pages, select GitHub Actions as the source. Commit the web directory and `.github/workflows/pages.yml`, then push to `main` or manually run the deployment workflow. Only `web/` is uploaded; research and other workspace files are excluded. If the default branch differs, update the workflow branch trigger.
 
@@ -30,3 +30,14 @@ JavaScript syntax, local asset references, whitespace checks, and the local HTTP
 ## Interaction refinements
 
 Window dragging uses one composited transform per animation frame. Opening, restoring, minimizing, maximizing, and arranging windows have short cancelable transitions. App search supports arrow keys and Enter. Window controls have larger hit areas, focus follows the active app, and reduced-motion preferences disable transitions.
+
+
+## Luxury Studio
+
+Open **Luxury Studio** from the dock, app search, or `open luxury` in Terminal. The direct desktop link is `?app=luxury`; `luxury/` opens the standalone simulator.
+
+Atelier is an interactive conceptual waterfront villa with 1–3 levels, 14–24 m width, three facade finishes, daylight/golden-hour/blue-hour lighting, pool toggle, roof removal for viewing the upper interior, orbit/pan/zoom, and preset cameras. Displayed gross area sums the stepped floor plates; dimensions are illustrative, not construction or valuation data. Save design stores a separate `daniel-os-luxury` record in this browser. Reset previews the defaults; Save commits them. Existing notes and wallpaper keys are untouched.
+
+Three.js 0.180.0 and OrbitControls are vendored in `web/luxury/vendor/` under the included MIT license. A WebGL2-capable browser is required; rendering failure displays recovery guidance. The scene is browser-native procedural geometry. Blender is installed on the development computer, but Blender MCP was not available to this task and was not used.
+
+Validation: JavaScript syntax and whitespace checks; existing seven-app DOM regression checks; real Chrome WebGL render inspection; eight-app dock and iframe launch; floor/width area changes; material, pool, interior, light, and camera controls; persistence across iframe reload; reset; mobile overflow checks at 390 px. The simulator retains static relative paths and the existing Pages workflow continues to upload only `web/`.
