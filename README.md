@@ -41,3 +41,12 @@ Atelier is an interactive conceptual waterfront villa with 1–3 levels, 14–24
 Three.js 0.180.0 and OrbitControls are vendored in `web/luxury/vendor/` under the included MIT license. A WebGL2-capable browser is required; rendering failure displays recovery guidance. The scene is browser-native procedural geometry. Blender is installed on the development computer, but Blender MCP was not available to this task and was not used.
 
 Validation: JavaScript syntax and whitespace checks; existing seven-app DOM regression checks; real Chrome WebGL render inspection; eight-app dock and iframe launch; floor/width area changes; material, pool, interior, light, and camera controls; persistence across iframe reload; reset; mobile overflow checks at 390 px. The simulator retains static relative paths and the existing Pages workflow continues to upload only `web/`.
+
+
+## Blender villa integration
+
+Luxury Studio now opens the authored Horizon villa model (`luxury/assets/horizon-villa.glb`), with living/bedroom/plan camera views and a roof reveal. The original procedural configurator remains at `luxury/concept.html` with its existing local save key.
+
+Play, pause, restart, or scrub the 30-second interior promenade or 20-second coastal sweep. The web camera paths are sampled from the actual evaluated Blender cameras and transformed from Blender Z-up into glTF Y-up. Both paths also have rendered film previews available inside the app. The native Blender file keeps full procedural materials; the GLB uses simplified PBR materials to avoid heavyweight baking and external dependencies. The original authored model and videos are the only project assets published.
+
+Validation: Chrome model loading and WebGL rendering; desktop launch; camera play/pause/scrub, route switching, room views and roof reveal; video readiness; 390 px mobile overflow; existing desktop app regressions. All 720 interior camera positions clear the bounds of 45 architectural and tall furniture objects, using a 4 cm margin. Videos are decoded end-to-end before publishing. Vendored GLTFLoader and BufferGeometryUtils match Three.js 0.180.0 and its included MIT license.
