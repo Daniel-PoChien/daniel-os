@@ -16,8 +16,8 @@ In repository Settings → Pages, select GitHub Actions as the source. Commit th
 
 - Dock, app search (Command/Ctrl K), draggable and resizable windows, minimize, close, maximize, arrange.
 - Notes save in localStorage for this browser and origin; export a text backup. They do not sync across devices. Changing origin or clearing browser data loses access to local notes.
-- Files opens three built-in documents; it is not access to the host filesystem.
-- Terminal supports help, ls, cat note, open, date, whoami, echo, and clear. Input is never executed as JavaScript or a system command.
+- Files browses a persistent virtual home at `/home/daniel`, with Desktop, Documents, and Downloads folders, folder creation, and new notes. It does not access the host filesystem.
+- Terminal supports `pwd`, `ls`, `cd`, `tree`, `mkdir`, `touch`, `cat`, `mv`, `cp`, `echo` with `>` / `>>`, `open`, `edit`, `download`, `apps`, `history`, `date`, `whoami`, `clear`, and `help`. Tab completes paths, arrows recall commands, and Ctrl+L clears output. Input is never executed as JavaScript or a host system command.
 - Focus uses an absolute deadline to avoid timer drift while the tab is open. Closing an app window preserves the session; reloading the page resets it. Keep the tab open for completion reminders.
 - Wallpaper preference persists locally. On small screens windows fit the viewport; apps remain accessible through the dock.
 
@@ -50,3 +50,24 @@ Luxury Studio now opens the authored Horizon villa model (`luxury/assets/horizon
 Play, pause, restart, or scrub the 30-second interior promenade or 20-second coastal sweep. The web camera paths are sampled from the actual evaluated Blender cameras and transformed from Blender Z-up into glTF Y-up. Both paths also have rendered film previews available inside the app. The native Blender file keeps full procedural materials; the GLB uses simplified PBR materials to avoid heavyweight baking and external dependencies. The original authored model and videos are the only project assets published.
 
 Validation: Chrome model loading and WebGL rendering; desktop launch; camera play/pause/scrub, route switching, room views and roof reveal; video readiness; 390 px mobile overflow; existing desktop app regressions. All 720 interior camera positions clear the bounds of 45 architectural and tall furniture objects, using a 4 cm margin. Videos are decoded end-to-end before publishing. Vendored GLTFLoader and BufferGeometryUtils match Three.js 0.180.0 and its included MIT license.
+
+## Shared filesystem and Notes
+
+Files, Notes, and Terminal share the `daniel-os-filesystem-v1` localStorage record. Existing `daniel-os-note` text migrates to `~/Documents/My note.txt` when the workspace is first saved; the original key remains untouched as a backup. The active note and filenames survive reloads. Notes supports new files, rename, and export using the actual filename.
+
+```text
+cd Documents
+mkdir "My projects"
+cd "My projects"
+echo "First idea" > plan.txt
+edit plan.txt
+cp plan.txt ~/Downloads/
+cd ..
+ls
+```
+
+Paths support absolute paths, `~`, `.`, `..`, and `cd -`. Names are case-sensitive; quote filenames containing spaces. `mv` and `cp` reject collisions rather than overwrite existing files. Folder operations preserve child files and update the active note path. `download` triggers an actual browser download; virtual Downloads is a regular workspace folder. Shell pipes, arbitrary programs, and recursive deletion are not implemented.
+
+Storage errors leave the previous saved workspace unchanged; unsaved note text stays in the editor and can be exported. Conflicting edits from another tab are rejected with reload guidance. Corrupt stored data is never silently replaced. This is device-local storage, not cloud sync; export important files before clearing browser data.
+
+Filesystem regression tests: `node --test tests/filesystem.test.mjs`. Tests cover migration, path parsing, quoted redirection, moves/copies, collisions, failed storage writes, cross-tab conflicts, and corrupt storage. DOM integration checks additionally covered terminal navigation, text redirection, safe text rendering, Notes rename, synchronized Files, Tab completion, reload persistence, new notes, and Luxury Studio launch.

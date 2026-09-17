@@ -2,7 +2,7 @@ name: Deploy Daniel OS to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ['web/**', '.github/workflows/pages.yml']
+    paths: ['web/**', 'tests/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,6 +19,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Validate filesystem and desktop JavaScript
+        run: |
+          node --test tests/filesystem.test.mjs
+          node --check web/app.js
+          node --check web/workspace.mjs
+          node --check web/filesystem.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
