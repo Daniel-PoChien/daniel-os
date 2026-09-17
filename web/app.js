@@ -1,4 +1,5 @@
-import {createWorkspace} from './workspace.mjs';
+import {setupDesktopPins} from './desktop-pins.mjs';
+import {createWorkspace} from './workspace.mjs?v=desktop-pins-rm-1';
 const $ = (s, root = document) => root.querySelector(s);
 const apps = [
   {id:'welcome',name:'Welcome',icon:'✳',color:'#c5e783'},
@@ -22,6 +23,7 @@ function persist(key,value){try{localStorage.setItem(key,value);storageFailed=fa
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
 function icon(app){return `<span class="app-icon" style="--tile:${app.color};--ink:${app.ink || '#334138'}">${app.icon}</span>`;}
 $('#dock').innerHTML=apps.map(app=>`<button data-open="${app.id}" aria-label="Open ${app.name}" title="${app.name}">${icon(app)}<span class="dock-label">${app.name}</span></button>`).join('');
+setupDesktopPins({apps,icon,toast});
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 function animateWindow(win, frames, duration=180) {
  win.getAnimations().forEach(animation=>animation.cancel());

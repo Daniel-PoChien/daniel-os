@@ -17,7 +17,7 @@ In repository Settings → Pages, select GitHub Actions as the source. Commit th
 - Dock, app search (Command/Ctrl K), draggable and resizable windows, minimize, close, maximize, arrange.
 - Notes save in localStorage for this browser and origin; export a text backup. They do not sync across devices. Changing origin or clearing browser data loses access to local notes.
 - Files browses a persistent virtual home at `/home/daniel`, with Desktop, Documents, and Downloads folders, folder creation, and new notes. It does not access the host filesystem.
-- Terminal supports `pwd`, `ls`, `cd`, `tree`, `mkdir`, `touch`, `cat`, `mv`, `cp`, `echo` with `>` / `>>`, `open`, `edit`, `download`, `apps`, `history`, `date`, `whoami`, `clear`, and `help`. Tab completes paths, arrows recall commands, and Ctrl+L clears output. Input is never executed as JavaScript or a host system command.
+- Terminal supports `pwd`, `ls`, `cd`, `tree`, `mkdir`, `touch`, `cat`, `mv`, `cp`, `rm`, `echo` with `>` / `>>`, `open`, `edit`, `download`, `apps`, `history`, `date`, `whoami`, `clear`, and `help`. Tab completes paths, arrows recall commands, and Ctrl+L clears output. Input is never executed as JavaScript or a host system command.
 - Focus uses an absolute deadline to avoid timer drift while the tab is open. Closing an app window preserves the session; reloading the page resets it. Keep the tab open for completion reminders.
 - Wallpaper preference persists locally. On small screens windows fit the viewport; apps remain accessible through the dock.
 
@@ -71,3 +71,11 @@ Paths support absolute paths, `~`, `.`, `..`, and `cd -`. Names are case-sensiti
 Storage errors leave the previous saved workspace unchanged; unsaved note text stays in the editor and can be exported. Conflicting edits from another tab are rejected with reload guidance. Corrupt stored data is never silently replaced. This is device-local storage, not cloud sync; export important files before clearing browser data.
 
 Filesystem regression tests: `node --test tests/filesystem.test.mjs`. Tests cover migration, path parsing, quoted redirection, moves/copies, collisions, failed storage writes, cross-tab conflicts, and corrupt storage. DOM integration checks additionally covered terminal navigation, text redirection, safe text rendering, Notes rename, synchronized Files, Tab completion, reload persistence, new notes, and Luxury Studio launch.
+
+## Remove files and pin apps
+
+`rm plan.txt` permanently removes a virtual file. Quote paths with spaces; multiple files are supported (`rm a.txt b.txt`). `rm -- -draft.txt` handles a filename beginning with a dash. Folders and recursive flags are rejected. All paths are checked before deletion, so a missing or invalid target leaves the whole group unchanged. Removing the active note clears the editor to an empty state with a New note button. There is no Trash or undo for `rm`; export any file you want to retain.
+
+Drag an app from the dock to an empty desktop area to pin it. Drag the pinned icon to reposition it, click to open, or use its × button to unpin without removing the app. Layout is saved in `daniel-os-desktop-pins-v1` using relative positions so pins adapt to the viewport. Pointer events support mouse, pen, and touch. Keyboard alternative: focus a dock app, press Shift+Enter to pin; Tab to a pin's unpin control to remove it. Escape cancels a drag.
+
+Validation: filesystem tests cover atomic removal, folder rejection, active-note removal, reload, and storage failure. DOM integration checks cover shell removal, new-note recovery, pin creation by drag, moving existing pins, opening pinned apps, persistence, unpinning, keyboard pinning, and rejecting a drop over an app/window. Existing filesystem and Luxury Studio launch checks also pass.

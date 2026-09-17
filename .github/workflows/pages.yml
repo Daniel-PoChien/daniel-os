@@ -25,6 +25,7 @@ jobs:
           node --check web/app.js
           node --check web/workspace.mjs
           node --check web/filesystem.mjs
+          node --check web/desktop-pins.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

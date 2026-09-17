@@ -43,9 +43,9 @@ export class FileSystem {
    if(path!=='/'&&data.entries[parentPath(path)]?.type!=='directory')throw Error('Missing parent');
   }
   for(const path of ['/','/home',HOME])if(data.entries[path]?.type!=='directory')throw Error('Missing home');
-  if(data.entries[data.active]?.type!=='file')throw Error('Missing note');
+  if(data.active!==null&&data.entries[data.active]?.type!=='file')throw Error('Missing note');
  }
- get(path){const entry=this.data.entries[path];if(!entry)throw Error('No such file or directory: '+displayPath(path));return entry;}
+ get(path){if(typeof path!=='string')throw Error('No file is open.');const entry=this.data.entries[path];if(!entry)throw Error('No such file or directory: '+displayPath(path));return entry;}
  list(path){if(this.get(path).type!=='directory')throw Error('Not a directory: '+displayPath(path));return Object.entries(this.data.entries).filter(([p])=>p!=='/'&&parentPath(p)===path).sort(([a,x],[b,y])=>x.type===y.type?a.localeCompare(b):x.type==='directory'?-1:1);}
  commit(change){
   if(this.loadError)throw Error(this.loadError);
@@ -59,6 +59,12 @@ export class FileSystem {
  write(path,content,append=false){if(this.data.entries[path]?.type==='directory')throw Error('Cannot write to a directory.');if(!this.data.entries[path])this.checkNew(path);this.commit(d=>{d.entries[path]=file((append?(d.entries[path]?.content||''):'')+content);});}
  touch(path){if(this.data.entries[path]){if(this.get(path).type!=='file')throw Error('Not a file.');return;}this.write(path,'');}
  activate(path){if(this.get(path).type!=='file')throw Error('Not a text file.');if(this.data.active!==path)this.commit(d=>{d.active=path;});}
+ remove(paths){
+  const unique=[...new Set(paths)];
+  if(!unique.length)throw Error('Choose a file to remove.');
+  for(const path of unique){if(this.get(path).type!=='file')throw Error('Cannot remove a directory: '+displayPath(path));}
+  this.commit(d=>{for(const path of unique){delete d.entries[path];if(d.active===path)d.active=null;}});
+ }
  move(source,target,copy=false){
   const node=this.get(source);if(target===source)return target;
   if(this.data.entries[target]?.type==='directory')target=target+'/'+basename(source);
@@ -66,7 +72,7 @@ export class FileSystem {
   if(['/','/home',HOME].includes(source))throw Error('Cannot move system folders.');
   if(target.startsWith(source+'/'))throw Error('Cannot move or copy a folder inside itself.');
   this.commit(d=>{for(const [p,n] of Object.entries(this.data.entries)){if(p===source||p.startsWith(source+'/')){d.entries[target+p.slice(source.length)]={...n};if(!copy)delete d.entries[p];}}
-   if(!copy&&(d.active===source||d.active.startsWith(source+'/')))d.active=target+d.active.slice(source.length);
+   if(!copy&&(d.active===source||d.active?.startsWith(source+'/')))d.active=target+d.active.slice(source.length);
   });return target;
  }
 }

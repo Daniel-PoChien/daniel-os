@@ -34,3 +34,17 @@ test('write failure is atomic and another tab cannot overwrite newer changes',()
 test('corrupt workspace is preserved and never replaced on write',()=>{
  const store=storage({[FS_KEY]:'bad-json'}),fs=new FileSystem(store);assert.ok(fs.loadError);assert.throws(()=>fs.write(fs.data.active,'new'));assert.equal(store.getItem(FS_KEY),'bad-json');
 });
+test('remove files atomically, reject directories, clear deleted active note',()=>{
+ const store=storage(),fs=new FileSystem(store),active=fs.data.active;
+ fs.write(HOME+'/Downloads/keep.txt','keep');
+ assert.throws(()=>fs.remove([active,HOME+'/missing.txt']));assert.equal(fs.get(active).type,'file');
+ assert.throws(()=>fs.remove([active,HOME+'/Downloads']));assert.equal(fs.get(active).type,'file');
+ fs.remove([active,active]);assert.equal(fs.data.active,null);assert.throws(()=>fs.get(active));
+ assert.equal(new FileSystem(store).data.active,null);assert.equal(fs.get(HOME+'/Downloads/keep.txt').content,'keep');
+ fs.move(HOME+'/Downloads/keep.txt',HOME+'/Documents/kept.txt');assert.equal(fs.data.active,null);
+ fs.remove(Object.entries(fs.data.entries).filter(([,n])=>n.type==='file').map(([p])=>p));assert.equal(fs.data.active,null);assert.equal(fs.list(HOME+'/Documents').length,0);
+});
+test('failed removal keeps saved files intact',()=>{
+ const store=storage(),fs=new FileSystem(store),active=fs.data.active;fs.write(active,'precious');store.setItem=()=>{throw Error('quota');};
+ assert.throws(()=>fs.remove([active]));assert.equal(fs.get(active).content,'precious');assert.equal(fs.data.active,active);
+});
