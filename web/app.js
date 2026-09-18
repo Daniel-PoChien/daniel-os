@@ -1,4 +1,5 @@
-import {setupDesktopPins} from './desktop-pins.mjs';
+import {appSymbol} from './icons.mjs';
+import {setupDesktopPins} from './desktop-pins.mjs?v=icon-grid-1';
 import {createWorkspace} from './workspace.mjs?v=desktop-pins-rm-1';
 const $ = (s, root = document) => root.querySelector(s);
 const apps = [
@@ -21,8 +22,9 @@ const workspace=createWorkspace({openApp,toast});
 let storageFailed=false;
 function persist(key,value){try{localStorage.setItem(key,value);storageFailed=false;return true;}catch{storageFailed=true;toast('Storage is unavailable. Export your note to keep it.');return false;}}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
-function icon(app){return `<span class="app-icon" style="--tile:${app.color};--ink:${app.ink || '#334138'}">${app.icon}</span>`;}
+function icon(app,active=false){return `<span class="app-icon" style="--tile:${app.color};--ink:${app.ink || '#334138'}">${appSymbol(app.id,active)}</span>`;}
 $('#dock').innerHTML=apps.map(app=>`<button data-open="${app.id}" aria-label="Open ${app.name}" title="${app.name}">${icon(app)}<span class="dock-label">${app.name}</span></button>`).join('');
+window.addEventListener('desktop-pins-rendered',updateDock);
 setupDesktopPins({apps,icon,toast});
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 function animateWindow(win, frames, duration=180) {
@@ -32,15 +34,16 @@ function animateWindow(win, frames, duration=180) {
 }
 function raise(win,id){
  windows.forEach(other=>other.classList.toggle('active',other===win));
- win.style.zIndex=++topZ;$('#active-app').textContent=apps.find(a=>a.id===id).name;
+ win.style.zIndex=++topZ;$('#active-app').textContent=apps.find(a=>a.id===id).name;updateDock();
 }
 function focusApp(win){requestAnimationFrame(()=>{if(!win.isConnected||win.classList.contains('hidden'))return;($('textarea, #command',win)||win).focus({preventScroll:true});});}
 function frontmost(){
  const visible=[...windows.entries()].filter(([,win])=>!win.classList.contains('hidden')&&!win.dataset.leaving);
  visible.sort((a,b)=>Number(b[1].style.zIndex)-Number(a[1].style.zIndex));
- if(visible.length){raise(visible[0][1],visible[0][0]);focusApp(visible[0][1]);}else $('#active-app').textContent='Workspace';
+ if(visible.length){raise(visible[0][1],visible[0][0]);focusApp(visible[0][1]);}else {$('#active-app').textContent='Workspace';if(tiled)setTiled(false);}
 }
 function toggleMaximize(win){
+ if(tiled)setTiled(false);
  const before=win.getBoundingClientRect();win.classList.toggle('maximized');
  const after=win.getBoundingClientRect();
  animateWindow(win,[{transform:`translate(${before.x-after.x}px,${before.y-after.y}px) scale(${before.width/after.width},${before.height/after.height})`},{transform:'none'}],240);
@@ -51,7 +54,20 @@ function clampWindow(win){
  win.style.top=`${Math.max(10,Math.min(win.offsetTop,$('#desktop').clientHeight-Math.min(win.offsetHeight,280)-100))}px`;
 }
 window.addEventListener('resize',()=>windows.forEach(clampWindow));
-function updateDock(){apps.forEach(a=>$(`#dock [data-open="${a.id}"]`).classList.toggle('running',windows.has(a.id)));}
+function updateDock(){
+ apps.forEach(app=>{const win=windows.get(app.id),active=!!win&&win.classList.contains('active')&&!win.classList.contains('hidden')&&!win.dataset.leaving;
+ document.querySelectorAll(`#dock [data-open="${app.id}"], .pin-launch[data-open="${app.id}"]`).forEach(button=>{button.classList.toggle('running',!!win);button.classList.toggle('app-active',active);button.setAttribute('aria-label',`Open ${app.name}${active?' — active':win?' — open':''}`);button.setAttribute('aria-current',active?'true':'false');const tile=button.querySelector('.app-icon');if(tile)tile.outerHTML=icon(app,active);});
+ });
+}
+let tiled=false;
+function setTiled(value){
+ value=value&&[...windows.values()].some(win=>!win.classList.contains('hidden'));
+ tiled=value;const host=$('#windows');
+ if(value){windows.forEach(win=>{if(!win.dataset.floating)win.dataset.floating=JSON.stringify({left:win.style.left,top:win.style.top,width:win.style.width,height:win.style.height});win.classList.remove('maximized');});}
+ else windows.forEach(win=>{if(win.dataset.floating){Object.assign(win.style,JSON.parse(win.dataset.floating));delete win.dataset.floating;}clampWindow(win);});
+ host.classList.toggle('tiled',value);host.scrollTop=0;$('#tidy').textContent=value?'Float windows':'Arrange windows';$('#tidy').setAttribute('aria-pressed',String(value));
+}
+
 function openApp(id){
  const app=apps.find(a=>a.id===id);if(!app)return false;
  if(windows.has(id)){const win=windows.get(id);delete win.dataset.leaving;win.style.pointerEvents='';const hidden=win.classList.contains('hidden');win.classList.remove('hidden');raise(win,id);animateWindow(win,hidden?[{opacity:0,transform:'translateY(35px) scale(.95)'},{opacity:1,transform:'none'}]:[{opacity:.9},{opacity:1}]);focusApp(win);return true;}
@@ -76,6 +92,7 @@ function openApp(id){
  bar.addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMaximize(win);});
  bar.addEventListener('pointerdown',e=>{
  if(e.button!==0||e.target.closest('button')||win.classList.contains('maximized'))return;
+ if(tiled)setTiled(false);
  win.getAnimations().forEach(animation=>animation.cancel());
  drag={x:e.clientX,y:e.clientY,left:win.offsetLeft,top:win.offsetTop};dx=dy=0;
  bar.setPointerCapture(e.pointerId);win.classList.add('dragging');
@@ -113,7 +130,7 @@ function markTheme(){document.querySelectorAll('[data-theme]').forEach(el=>{el.c
 function setTheme(name){theme=name;document.documentElement.style.setProperty('--wall',themes[name]);persist('daniel-os-theme',name);markTheme();}
 document.addEventListener('click',e=>{const target=e.target.closest('[data-open]');if(target)openApp(target.dataset.open);});
 $('#home').onclick=()=>openApp('welcome');$('#wallpaper').onclick=()=>openApp('settings');
-$('#tidy').onclick=()=>{let index=0;windows.forEach(win=>{const before=win.getBoundingClientRect();win.classList.remove('maximized','hidden');win.style.left=`${Math.max(10,Math.min(160+index*35,innerWidth-win.offsetWidth-10))}px`;win.style.top=`${Math.max(10,Math.min(45+index*35,innerHeight-win.offsetHeight-155))}px`;const after=win.getBoundingClientRect();animateWindow(win,[{transform:`translate(${before.x-after.x}px,${before.y-after.y}px)`},{transform:'none'}],260);index++;});};
+$('#tidy').onclick=()=>setTiled(!tiled);
 let selectedResult=0;
 function selectResult(index){const buttons=[...document.querySelectorAll('[data-launch]')];selectedResult=Math.max(0,Math.min(index,buttons.length-1));buttons.forEach((button,i)=>{button.classList.toggle('selected',i===selectedResult);});buttons[selectedResult]?.scrollIntoView({block:'nearest'});}
 function searchResults(){const query=$('#app-search').value.toLowerCase();const results=apps.filter(a=>a.name.toLowerCase().includes(query));$('#search-results').innerHTML=results.length?results.map(a=>`<button data-launch="${a.id}">${icon(a)}<span>${a.name}</span></button>`).join(''):'<p style="padding:18px;color:#73816a">No apps found. Try another name.</p>';selectResult(0);}

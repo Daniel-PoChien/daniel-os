@@ -79,3 +79,11 @@ Filesystem regression tests: `node --test tests/filesystem.test.mjs`. Tests cove
 Drag an app from the dock to an empty desktop area to pin it. Drag the pinned icon to reposition it, click to open, or use its × button to unpin without removing the app. Layout is saved in `daniel-os-desktop-pins-v1` using relative positions so pins adapt to the viewport. Pointer events support mouse, pen, and touch. Keyboard alternative: focus a dock app, press Shift+Enter to pin; Tab to a pin's unpin control to remove it. Escape cancels a drag.
 
 Validation: filesystem tests cover atomic removal, folder rejection, active-note removal, reload, and storage failure. DOM integration checks cover shell removal, new-note recovery, pin creation by drag, moving existing pins, opening pinned apps, persistence, unpinning, keyboard pinning, and rejecting a drop over an app/window. Existing filesystem and Luxury Studio launch checks also pass.
+
+## App icons and layout
+
+All eight apps use a consistent SVG icon family in the dock, launcher, and desktop. The focused app shows an alternate icon detail, a highlighted tile, and an active indicator; inactive open apps retain a small running indicator. Minimizing, restoring, closing, and switching apps updates both dock and desktop icons.
+
+Desktop pins occupy uniform 100 × 112 px grid cells, with 48 px icon tiles and aligned labels. Drops snap to the closest free slot; existing saved positions migrate into the grid without losing pins. Resizing reflows icons without collisions. Small viewports can scroll the pin area.
+
+Arrange windows toggles a responsive tiled layout with gaps and scrolling when needed. Float windows restores saved floating geometry. Maximizing or dragging a title bar exits tiling. Tests cover overlapping saved coordinates at 280–1440 px widths, icon variants, active/running state transitions, pin synchronization, and tile/float behavior. Run all unit tests with `node --test tests/*.test.mjs`.

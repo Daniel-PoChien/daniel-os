@@ -21,11 +21,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate filesystem and desktop JavaScript
         run: |
-          node --test tests/filesystem.test.mjs
+          node --test tests/*.test.mjs
           node --check web/app.js
           node --check web/workspace.mjs
           node --check web/filesystem.mjs
           node --check web/desktop-pins.mjs
+          node --check web/icons.mjs
+          node --check web/icon-grid.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
