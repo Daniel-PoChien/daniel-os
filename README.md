@@ -87,3 +87,9 @@ All eight apps use a consistent SVG icon family in the dock, launcher, and deskt
 Desktop pins occupy uniform 100 × 112 px grid cells, with 48 px icon tiles and aligned labels. Drops snap to the closest free slot; existing saved positions migrate into the grid without losing pins. Resizing reflows icons without collisions. Small viewports can scroll the pin area.
 
 Arrange windows toggles a responsive tiled layout with gaps and scrolling when needed. Float windows restores saved floating geometry. Maximizing or dragging a title bar exits tiling. Tests cover overlapping saved coordinates at 280–1440 px widths, icon variants, active/running state transitions, pin synchronization, and tile/float behavior. Run all unit tests with `node --test tests/*.test.mjs`.
+
+## Filenames with spaces
+
+Use `rm "Untitled 2.txt"`, not `rm Untitled 2.txt`. The shell separates unquoted words into individual arguments. `ls` now displays names containing spaces or shell punctuation as properly quoted arguments. When a removal fails because an argument does not exist, the error says that no files were removed and suggests a quoted command only if exactly one grouping matches existing files. Suggestions never execute automatically. Tab completion also accepts an unfinished quoted filename.
+
+The reported single-file and multi-file commands are regression-tested with isolated disposable fixtures, including correct quoted deletion, ambiguity, and preserving unrelated files. Live browser checks confirmed directory navigation, reading quoted names, and missing-argument validation without deleting user files.

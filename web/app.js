@@ -1,6 +1,6 @@
 import {appSymbol} from './icons.mjs';
 import {setupDesktopPins} from './desktop-pins.mjs?v=icon-grid-1';
-import {createWorkspace} from './workspace.mjs?v=desktop-pins-rm-1';
+import {createWorkspace} from './workspace.mjs?v=rm-hints-1';
 const $ = (s, root = document) => root.querySelector(s);
 const apps = [
   {id:'welcome',name:'Welcome',icon:'✳',color:'#c5e783'},
