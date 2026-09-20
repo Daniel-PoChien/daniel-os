@@ -1,0 +1,10 @@
+Vesper publish bundle — 2026-09-20
+
+interior-tour.mp4: Vesper 30-second interior-led tour
+exterior-tour.mp4: Vesper 35-second golden-hour pool and terrace tour
+interior.png: Vesper living hero
+exterior.png: Vesper pool and forest hero
+vesper-plan.png: furnished cutaway plan
+vesper-playing-room.png: playing-room openings review
+
+Source deliverables remain in outputs/Vesper.
