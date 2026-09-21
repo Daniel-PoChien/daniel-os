@@ -4,6 +4,7 @@ import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {DRACOLoader} from './vendor/DRACOLoader.js';
 const $=s=>document.querySelector(s),host=$('#viewport');
 let renderer,controls,model,paths,playing=false,rail=false,time=0,route='interior',last=0,visible=true,lastFilmButton=null;
+let quality='balanced';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9bbc2);scene.fog=new THREE.Fog(0xa9bbc2,110,420);
 const camera=new THREE.PerspectiveCamera(48,1,.06,1000);
 const materialLooks={
@@ -52,7 +53,7 @@ function begin(){if(!paths||!model)return;rail=true;$('.hint').textContent='Guid
 function reveal(value){model?.traverse(o=>{if(/roof[ _]slab|Timber[ _]soffit/i.test(o.name))o.visible=!value;});}
 function view(name){if(!controls)return;stop();const views={exterior:{p:[19,3.1,10.5],t:[11.5,1.15,1],f:52},living:{p:[10.8,1.65,-.95],t:[11,1.35,3.2],f:72},playing:{p:[6.4,1.55,-8.2],t:[9,1.1,-7.2],f:72},office:{p:[3.7,1.65,-13.3],t:[3.7,1.2,-15.2],f:66},primary:{p:[13.7,1.65,-4.8],t:[15.3,1.2,-4.8],f:68},terrace:{p:[13,1.75,5.8],t:[12.9,1.15,2.7],f:62},plan:{p:[10,42,-8],t:[10,0,-8],f:48}};const v=views[name];host.dataset.mode=name;camera.position.fromArray(v.p);controls.target.fromArray(v.t);camera.fov=v.f;camera.updateProjectionMatrix();controls.update();$('#reveal').checked=name==='plan';reveal(name==='plan');document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));$('#scene-caption').textContent={exterior:'Pool, terrace, and viridian forest.',living:'Open living, dining, and kitchen.',playing:'Two open connections to kitchen and entry.',office:'A quiet, separate workspace facing the forest.',primary:'Primary bedroom with dressing room and bathroom.',terrace:'Covered terrace opening toward the infinity pool.',plan:'The refined three-bedroom floor plan.'}[name];}
 try{
-renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.92;host.prepend(renderer.domElement);
+renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.92;host.prepend(renderer.domElement);
 controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=.2;controls.maxDistance=85;controls.maxPolarAngle=Math.PI*.49;
 scene.background=new THREE.Color(0x49655c);scene.fog=new THREE.Fog(0x49655c,65,210);
 scene.add(new THREE.HemisphereLight(0xc5d7cd,0x17251e,1.25));
@@ -79,6 +80,7 @@ document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>view(b.dataset
 document.querySelectorAll('[data-film]').forEach(b=>b.onclick=()=>{lastFilmButton=b;stop();const type=b.dataset.film;$('#film').hidden=false;const video=$('#video');video.poster='assets/'+(type==='interior'?'interior':'exterior')+'.png';video.preload='metadata';video.src='assets/'+type+'-tour.mp4';video.load();video.play().catch(()=>status('Press play in the video to start.'));$('#close-film').focus();});
 $('#fullscreen').onclick=async()=>{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();$('#fullscreen').textContent='Exit fullscreen';}else{await document.exitFullscreen();}}catch{status('Fullscreen is unavailable in this browser.');}};
 document.addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Exit fullscreen':'Fullscreen';});
+$('#quality').onclick=()=>{if(!renderer)return;quality=quality==='balanced'?'high':quality==='high'?'performance':'balanced';const settings={performance:{ratio:.8,shadows:false,label:'Performance'},balanced:{ratio:1.25,shadows:true,label:'Balanced'},high:{ratio:Math.min(devicePixelRatio,2),shadows:true,label:'High'}}[quality];renderer.setPixelRatio(settings.ratio);renderer.shadowMap.enabled=settings.shadows;renderer.setSize(host.clientWidth,host.clientHeight,false);$('#quality').textContent='Quality: '+settings.label;status(settings.label+' graphics enabled.');};
 $('#close-film').onclick=()=>{$('#video').pause();$('#film').hidden=true;lastFilmButton?.focus();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#film').hidden)$('#close-film').click();});
 $('#video').addEventListener('error',()=>status('The film could not load. Close it and try again.'));
