@@ -112,7 +112,7 @@ let duration=25,remaining=25*60,endTime=null,timerRunning=false;
 function timerSeconds(){return timerRunning?Math.max(0,Math.ceil((endTime-Date.now())/1000)):remaining;}
 function updateTimer(){const seconds=timerSeconds();if(timerRunning&&seconds===0){timerRunning=false;remaining=0;toast('Focus session complete. Time for a break.');}const el=$('#focus-time');if(el){el.textContent=`${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`;$('#timer-toggle').textContent=timerRunning?'Pause':seconds===0?'Start again':'Start focus';}}
 function render(id,body){
- if(id==='luxury'){body.classList.add('luxury-body');body.innerHTML='<iframe src="luxury/?v=horizon-villa" title="Luxury building simulator" allow="fullscreen"></iframe>';}
+ if(id==='luxury'){body.classList.add('luxury-body');body.innerHTML='<iframe src="luxury/?v=vesper-clean-walk-1" title="Luxury building simulator" allow="fullscreen"></iframe>';}
  if(id==='welcome')body.innerHTML=`<div class="welcome"><span class="eyebrow">A SPACE OF YOUR OWN</span><h2>Hello, Daniel<span style="color:#91ac72">.</span></h2><p>A clear desktop. A fresh start.<br>Your everyday tools, together in one little world.</p><div class="welcome-grid"><button data-open="notes"><span class="glyph">≡</span><span><strong>Catch a thought</strong><small>Open your notebook ↗</small></span></button><button data-open="focus"><span class="glyph">◷</span><span><strong>Find your focus</strong><small>Make room for deep work ↗</small></span></button></div><div class="welcome-footer"><span>BUILT FOR THE WAY YOU THINK</span><span>⌘ K to explore</span></div></div>`;
  if(['notes','files','terminal'].includes(id)){workspace.render(id,body);return;}
  if(id==='focus'){
