@@ -63,7 +63,8 @@ new IntersectionObserver(e=>{visible=e[0].isIntersecting;if(!visible){playing=fa
 renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();stop();$('#loading').textContent='3D graphics were interrupted. Reload the app, or watch a camera film.';});
 view('exterior');
 const draco=new DRACOLoader();draco.setDecoderPath('./vendor/draco/');const loader=new GLTFLoader();loader.setDRACOLoader(draco);
-Promise.all([loader.loadAsync('assets/vesper-villa.glb'),fetch('assets/camera-paths.json').then(r=>{if(!r.ok)throw Error('Camera paths unavailable');return r.json();})]).then(([g,data])=>{
+const villaDownload=new Promise((resolve,reject)=>loader.load('assets/vesper-villa.glb',resolve,event=>{if(event.total){const percent=Math.round(event.loaded/event.total*100);$('#loading').textContent=`Loading the furnished forest house… ${percent}%`;status(`Downloading interactive scene · ${percent}%`);}},reject));
+Promise.all([villaDownload,fetch('assets/camera-paths.json').then(r=>{if(!r.ok)throw Error('Camera paths unavailable');return r.json();})]).then(([g,data])=>{
  model=g.scene;paths=data;const translated=new Set();model.traverse(o=>{if(o.isMesh){o.castShadow=!/leaf|glass|water/i.test(o.name);o.receiveShadow=true;for(const material of (Array.isArray(o.material)?o.material:[o.material]))if(material&&!translated.has(material)){translateMaterial(material);translated.add(material);}}});scene.add(model);$('#loading').textContent='';for(const id of ['play','progress','restart','exit-tour','reveal'])$('#'+id).disabled=false;$('#progress').max=duration();progress();status('Villa ready. Choose a room or start the tour.');
 }).catch(error=>{$('#loading').textContent='The 3D villa could not load. Reload to retry, or watch the camera films.';status(error.message);});
 renderer.setAnimationLoop(ms=>{const delta=last?Math.min((ms-last)/1000,.1):0;last=ms;if(document.hidden||!visible||!$('#film').hidden)return;if(playing){time=Math.min(duration(),time+delta);applyTour();if(time>=duration()){playing=false;setPlay();status('Tour complete. Replay or explore freely.');}}else if(!rail)controls.update();renderer.render(scene,camera);});
@@ -76,6 +77,8 @@ $('#tour-select').onchange=e=>{stop();route=e.target.value;time=0;$('.tour-card 
 $('#reveal').onchange=e=>{stop();reveal(e.target.checked);};
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>view(b.dataset.view));
 document.querySelectorAll('[data-film]').forEach(b=>b.onclick=()=>{lastFilmButton=b;stop();const type=b.dataset.film;$('#film').hidden=false;const video=$('#video');video.poster='assets/'+(type==='interior'?'interior':'exterior')+'.png';video.preload='metadata';video.src='assets/'+type+'-tour.mp4';video.load();video.play().catch(()=>status('Press play in the video to start.'));$('#close-film').focus();});
+$('#fullscreen').onclick=async()=>{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();$('#fullscreen').textContent='Exit fullscreen';}else{await document.exitFullscreen();}}catch{status('Fullscreen is unavailable in this browser.');}};
+document.addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Exit fullscreen':'Fullscreen';});
 $('#close-film').onclick=()=>{$('#video').pause();$('#film').hidden=true;lastFilmButton?.focus();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#film').hidden)$('#close-film').click();});
 $('#video').addEventListener('error',()=>status('The film could not load. Close it and try again.'));
