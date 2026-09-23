@@ -28,6 +28,7 @@ jobs:
           node --check web/desktop-pins.mjs
           node --check web/icons.mjs
           node --check web/icon-grid.mjs
+          node --check web/inside-pc/scene.js
           node --check web/command-hints.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

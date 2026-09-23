@@ -5,6 +5,7 @@ const $ = (s, root = document) => root.querySelector(s);
 const apps = [
   {id:'welcome',name:'Welcome',icon:'✳',color:'#c5e783'},
   {id:'luxury',name:'Luxury Studio',icon:'⌂',color:'#dabe8e'},
+  {id:'hardware',name:'Inside the PC',icon:'▦',color:'#86c9c2'},
   {id:'files',name:'Files',icon:'▱',color:'#a9c6d4'},
   {id:'notes',name:'Notes',icon:'≡',color:'#efdc9b'},
   {id:'terminal',name:'Terminal',icon:'›_',color:'#293c3b',ink:'#daeccb'},
@@ -71,9 +72,9 @@ function setTiled(value){
 function openApp(id){
  const app=apps.find(a=>a.id===id);if(!app)return false;
  if(windows.has(id)){const win=windows.get(id);delete win.dataset.leaving;win.style.pointerEvents='';const hidden=win.classList.contains('hidden');win.classList.remove('hidden');raise(win,id);animateWindow(win,hidden?[{opacity:0,transform:'translateY(35px) scale(.95)'},{opacity:1,transform:'none'}]:[{opacity:.9},{opacity:1}]);focusApp(win);return true;}
- const win=document.createElement('section');win.className='window';if(id==='luxury')win.classList.add('luxury-window');win.setAttribute('aria-label',app.name);win.setAttribute('role','region');win.tabIndex=-1;
+ const win=document.createElement('section');win.className='window';if(id==='luxury')win.classList.add('luxury-window');if(id==='hardware')win.classList.add('hardware-window');win.setAttribute('aria-label',app.name);win.setAttribute('role','region');win.tabIndex=-1;
  const count=windows.size;win.style.left=`${Math.min(390+count*25,Math.max(10,innerWidth-630))}px`;win.style.top=`${Math.min(82+count*24,Math.max(10,innerHeight-530))}px`;
- if(id==='luxury'){win.style.left='10px';win.style.top='10px';}
+ if(id==='luxury'||id==='hardware'){win.style.left='10px';win.style.top='10px';}
  win.innerHTML=`<header class="titlebar"><div class="controls"><button aria-label="Close ${app.name}" data-control="close"></button><button aria-label="Minimize ${app.name}" data-control="min"></button><button aria-label="Maximize or restore ${app.name}" data-control="max"></button></div><span class="window-title">${app.name}</span><span class="window-code">0${apps.indexOf(app)+1}</span></header><div class="window-body"></div>`;
  $('#windows').append(win);windows.set(id,win);raise(win,id);updateDock();
  win.addEventListener('pointerdown',()=>raise(win,id));
@@ -113,6 +114,7 @@ function timerSeconds(){return timerRunning?Math.max(0,Math.ceil((endTime-Date.n
 function updateTimer(){const seconds=timerSeconds();if(timerRunning&&seconds===0){timerRunning=false;remaining=0;toast('Focus session complete. Time for a break.');}const el=$('#focus-time');if(el){el.textContent=`${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`;$('#timer-toggle').textContent=timerRunning?'Pause':seconds===0?'Start again':'Start focus';}}
 function render(id,body){
  if(id==='luxury'){body.classList.add('luxury-body');body.innerHTML='<iframe src="luxury/?v=vesper-mobile-controls-5" title="Luxury building simulator" allow="fullscreen"></iframe>';}
+ if(id==='hardware'){body.classList.add('hardware-body');body.innerHTML='<iframe src="inside-pc/?v=inside-pc-1" title="Inside the PC interactive hardware explorer" allow="fullscreen"></iframe>';}
  if(id==='welcome')body.innerHTML=`<div class="welcome"><span class="eyebrow">A SPACE OF YOUR OWN</span><h2>Hello, Daniel<span style="color:#91ac72">.</span></h2><p>A clear desktop. A fresh start.<br>Your everyday tools, together in one little world.</p><div class="welcome-grid"><button data-open="notes"><span class="glyph">≡</span><span><strong>Catch a thought</strong><small>Open your notebook ↗</small></span></button><button data-open="focus"><span class="glyph">◷</span><span><strong>Find your focus</strong><small>Make room for deep work ↗</small></span></button></div><div class="welcome-footer"><span>BUILT FOR THE WAY YOU THINK</span><span>⌘ K to explore</span></div></div>`;
  if(['notes','files','terminal'].includes(id)){workspace.render(id,body);return;}
  if(id==='focus'){
@@ -141,7 +143,7 @@ $('#app-search').onkeydown=e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.pre
 $('#search-results').onclick=e=>{const id=e.target.closest('[data-launch]')?.dataset.launch;if(id){$('#launcher').close();openApp(id);}};
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();showLauncher();}});
 function tick(){const now=new Date();$('#clock').textContent=now.toLocaleDateString(undefined,{month:'short',day:'numeric'})+'  '+now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});updateTimer();}
-setInterval(tick,1000);tick();openApp('welcome');if(new URLSearchParams(location.search).get('app')==='luxury')openApp('luxury');
+setInterval(tick,1000);tick();openApp('welcome');if(['luxury','hardware'].includes(new URLSearchParams(location.search).get('app')))openApp(new URLSearchParams(location.search).get('app'));
 const context=document.modelContext;
 if(context?.registerTool){
  const lifecycle=new AbortController();

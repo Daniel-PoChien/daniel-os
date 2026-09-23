@@ -8,7 +8,7 @@ From the repository root, run `python3 -m http.server 4173 --directory web` and 
 
 ## GitHub Pages
 
-The deployable static site is in `web/`. All asset URLs are relative, so repository Pages paths work. No build, server, API keys, or package installation are required. The luxury simulator vendors Three.js locally. Google Fonts is optional; system fonts work if unavailable.
+The deployable static site is in `web/`. All asset URLs are relative, so repository Pages paths work. No build, server, API keys, or package installation are required. The luxury simulator and Inside the PC share a local Three.js copy. Google Fonts is optional; system fonts work if unavailable.
 
 In repository Settings → Pages, select GitHub Actions as the source. Commit the web directory and `.github/workflows/pages.yml`, then push to `main` or manually run the deployment workflow. Only `web/` is uploaded; research and other workspace files are excluded. If the default branch differs, update the workflow branch trigger.
 
@@ -82,7 +82,7 @@ Validation: filesystem tests cover atomic removal, folder rejection, active-note
 
 ## App icons and layout
 
-All eight apps use a consistent SVG icon family in the dock, launcher, and desktop. The focused app shows an alternate icon detail, a highlighted tile, and an active indicator; inactive open apps retain a small running indicator. Minimizing, restoring, closing, and switching apps updates both dock and desktop icons.
+All nine apps use a consistent SVG icon family in the dock, launcher, and desktop. The focused app shows an alternate icon detail, a highlighted tile, and an active indicator; inactive open apps retain a small running indicator. Minimizing, restoring, closing, and switching apps updates both dock and desktop icons.
 
 Desktop pins occupy uniform 100 × 112 px grid cells, with 48 px icon tiles and aligned labels. Drops snap to the closest free slot; existing saved positions migrate into the grid without losing pins. Resizing reflows icons without collisions. Small viewports can scroll the pin area.
 
@@ -93,3 +93,9 @@ Arrange windows toggles a responsive tiled layout with gaps and scrolling when n
 Use `rm "Untitled 2.txt"`, not `rm Untitled 2.txt`. The shell separates unquoted words into individual arguments. `ls` now displays names containing spaces or shell punctuation as properly quoted arguments. When a removal fails because an argument does not exist, the error says that no files were removed and suggests a quoted command only if exactly one grouping matches existing files. Suggestions never execute automatically. Tab completion also accepts an unfinished quoted filename.
 
 The reported single-file and multi-file commands are regression-tested with isolated disposable fixtures, including correct quoted deletion, ambiguity, and preserving unrelated files. Live browser checks confirmed directory navigation, reading quoted names, and missing-argument validation without deleting user files.
+
+## Inside the PC
+
+Open **Inside the PC** from the dock, app search, or `open hardware` in Terminal. The deep link is `?app=hardware`; `inside-pc/` opens it on its own. A stylized 3D desktop tower explains eight major components. Drag to rotate, scroll or pinch to zoom, and drag the slider to unfold the assembly. Click a part in the model or list to view its purpose; click it again to restore the full machine. Eye buttons hide individual parts. Show all restores them.
+
+The view controls add X-ray transparency, contact shadows, black and white rooms, three procedural high-dynamic-range light environments, and light rotation. These are generated studio-style environments, not photographic HDRI files. The 3D model is an educational diagram, not an exact replica of a specific PC. On mobile, the advanced lighting section starts collapsed and the model sits above the essential learning controls. The app requires WebGL and falls back to text explanations when 3D rendering is unavailable.
