@@ -82,7 +82,7 @@ Validation: filesystem tests cover atomic removal, folder rejection, active-note
 
 ## App icons and layout
 
-All nine apps use a consistent SVG icon family in the dock, launcher, and desktop. The focused app shows an alternate icon detail, a highlighted tile, and an active indicator; inactive open apps retain a small running indicator. Minimizing, restoring, closing, and switching apps updates both dock and desktop icons.
+All ten apps use a consistent SVG icon family in the dock, launcher, and desktop. The focused app shows an alternate icon detail, a highlighted tile, and an active indicator; inactive open apps retain a small running indicator. Minimizing, restoring, closing, and switching apps updates both dock and desktop icons.
 
 Desktop pins occupy uniform 100 × 112 px grid cells, with 48 px icon tiles and aligned labels. Drops snap to the closest free slot; existing saved positions migrate into the grid without losing pins. Resizing reflows icons without collisions. Small viewports can scroll the pin area.
 
@@ -99,3 +99,9 @@ The reported single-file and multi-file commands are regression-tested with isol
 Open **Inside the PC** from the dock, app search, or `open hardware` in Terminal. The deep link is `?app=hardware`; `inside-pc/` opens it on its own. A stylized 3D desktop tower explains eight major components. Drag to rotate, scroll or pinch to zoom, and drag the slider to unfold the assembly. Click a part in the model or list to view its purpose; click it again to restore the full machine. Eye buttons hide individual parts. Show all restores them.
 
 The view controls add X-ray transparency, contact shadows, black and white rooms, three procedural high-dynamic-range light environments, and light rotation. These are generated studio-style environments, not photographic HDRI files. The 3D model is an educational diagram, not an exact replica of a specific PC. On mobile, the advanced lighting section starts collapsed and the model sits above the essential learning controls. The app requires WebGL and falls back to text explanations when 3D rendering is unavailable.
+
+## Pixel Prompt Lab
+
+Open **Pixel Prompt Lab** from the dock, app search, or `open pixel` in Terminal. The deep link is `?app=pixel`; `prompt-lab/` opens it on its own. The app contains twelve original prompts for landing pages, visual direction, motion, personal brands, conversion, responsive design, and strategy. Search and category filters narrow the collection. Save favorites in this browser, choose a prompt, add project details, then edit, copy, or download the resulting brief. No account or external AI service is required; the app prepares prompts for whichever design or coding AI the visitor uses.
+
+The motion guide demonstrates Count Up, Marquee, Typewriter, Stagger, Hover Lift, Morph, Easing, Ripple, and Flip Card. The terminology was inspired by [Austin's Threads post](https://www.threads.com/share/BAag6k8Iev/); the prompt texts and examples are original. Reduced-motion preferences suppress decorative animation. The library and build logic are in `web/prompt-lab/prompts.mjs`; unit tests cover search, favorites filtering, and prompt generation.

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {layoutPins} from '../web/icon-grid.mjs';
 import {appSymbol} from '../web/icons.mjs';
-const ids=['welcome','luxury','hardware','files','notes','terminal','focus','settings','about'];
+const ids=['welcome','luxury','hardware','pixel','files','notes','terminal','focus','settings','about'];
 test('colliding saved icon positions produce separate grid cells across viewports',()=>{
  for(const width of [280,320,390,768,1440])for(const height of [320,600,900]){
   const pins=ids.map(id=>({id,x:1,y:1}));const {placements,contentHeight}=layoutPins(pins,width,height);
