@@ -7,7 +7,10 @@ test('prompt library supports searchable categories and saved items',()=>{
  assert.ok(prompts.every(prompt=>categories.includes(prompt.category)));
  assert.deepEqual(filterPrompts('count up').map(prompt=>prompt.id),['motion']);
  assert.deepEqual(filterPrompts('','Saved',new Set(['hero','motion'])).map(prompt=>prompt.id),['hero','motion']);
- assert.ok(motions.length>=9);
+ assert.equal(motions.length,17);
+ assert.equal(new Set(motions.map(motion=>motion.id)).size,motions.length);
+ assert.ok(motions.every(motion=>motion.plain&&motion.when));
+ for(const id of ['reveal','mask','parallax','progress','accordion','carousel','magnetic','shimmer'])assert.ok(motions.some(motion=>motion.id===id),id);
 });
 test('generated prompt carries the specific brief and practical quality checks',()=>{
  const text=buildPrompt(prompts.find(prompt=>prompt.id==='motion'),{project:'Northline Coffee',audience:'remote workers',goal:'book a tasting',style:'warm editorial',stack:'HTML and CSS'});
