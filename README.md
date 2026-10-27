@@ -14,7 +14,8 @@ In repository Settings → Pages, select GitHub Actions as the source. Commit th
 
 ## Features and limits
 
-- Dock, app search (Command/Ctrl K), draggable and resizable windows, minimize, close, maximize, arrange.
+- Welcome previews the three creative apps and offers one-click launch, plus quick access to Notes, Files, and Focus.
+- Dock, app search (Command/Ctrl K), draggable and resizable windows, minimize, close, maximize, arrange. On phones, the labelled dock scrolls horizontally and Search remains a full-size tap target.
 - Notes save in localStorage for this browser and origin; export a text backup. They do not sync across devices. Changing origin or clearing browser data loses access to local notes.
 - Files browses a persistent virtual home at `/home/daniel`, with Desktop, Documents, and Downloads folders, folder creation, and new notes. It does not access the host filesystem.
 - Terminal supports `pwd`, `ls`, `cd`, `tree`, `mkdir`, `touch`, `cat`, `mv`, `cp`, `rm`, `echo` with `>` / `>>`, `open`, `edit`, `download`, `apps`, `history`, `date`, `whoami`, `clear`, and `help`. Tab completes paths, arrows recall commands, and Ctrl+L clears output. Input is never executed as JavaScript or a host system command.
